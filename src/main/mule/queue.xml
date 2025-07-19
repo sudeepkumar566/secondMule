@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="24414478-c6f3-46c6-8925-d8f122a149c1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="e81b75df-60eb-4ddb-a2d0-7d05d8fcf65b" >
+		<vm:queues >
+			<vm:queue queueName="vm1queue" />
+		</vm:queues>
+	</vm:config>
+	<flow name="imp1Flow" doc:id="825d2acc-c457-46b6-9a70-d7c929971b1f" >
+		<http:listener doc:name="Listener" doc:id="c4bdbed1-78db-495d-8f61-ddcf51d62670" config-ref="HTTP_Listener_config" path="/publish" />
+		<set-payload value='#["10"]' doc:name="Set Payload" doc:id="a31d5ec4-e3db-47a0-851a-e0023679a240" />
+		<logger level="INFO" doc:name="Logger" doc:id="1227350f-3512-4492-a22e-e84559e46bfa" message='#["the payload is " ++ payload]'/>
+		<vm:publish queueName="vm1queue" doc:name="Publish" doc:id="b346e634-b738-40b0-963b-84c9f5f08e0f" config-ref="VM_Config" sendCorrelationId="ALWAYS" correlationId="#[correlationId]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="576a3880-eb18-48e9-9e17-2403743af114" message='#["the payload is : " ++ payload]'/>
+	</flow>
+	<flow name="queueFlow" doc:id="a7efc6eb-b333-4d92-b03e-2d2481109eae" >
+		<vm:listener queueName="vm1queue" doc:name="Listener" doc:id="25a43c55-dead-4a22-ac69-a82119c712e4" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="044e6040-e449-4390-8b92-df7918c4c888" message='#["the payload is: "  ++ payload]'/>
+		<set-payload value='#["20"]' doc:name="Set Payload" doc:id="8adf9a8a-a22f-48da-99e6-9fd605636a52" />
+		<logger level="INFO" doc:name="Logger" doc:id="c3ee9efc-a3ef-4dc5-9359-3549b488761e" message='#["the payload is: "  ++ payload]'/>
+	</flow>
+</mule>
